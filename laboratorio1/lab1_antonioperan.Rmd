@@ -1,0 +1,252 @@
+---
+title: "Laboratorio 1"
+author: "Antonio J. Perán"
+date: "29 de septiembre de 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits = 2)
+library(xtable)
+options(xtable.comment = FALSE)
+```
+
+# Lectura de datos
+
+```{r, results='asis'}
+titanic <- read.csv(file = "http://eio.usc.es/pub/pateiro/AE/data/titanic_es.csv",
+                    header = T, sep = ";", dec = ",")
+xtable(head(titanic), caption = "Primeras seis observaciones del conjunto de datos")
+```
+
+# Ejericios
+
+**1. ¿Cuántos pasajeros aparecen registrados en el conjunto de datos?**  
+
+```{r}
+numpas <- nrow(titanic)
+numpas
+```
+
+En la base de datos aparecen registrados `r numpas` pasajeros.
+
+**2. ¿Cuántos pasajeros sobrevivieron al naufragio?**
+
+```{r}
+numsv <- sum(titanic$sobreviviente)
+numsv
+```
+
+El número de pasajeros que sobrevivieron al naufragio es `r numsv`.
+
+**3. Calcula el porcentaje de pasajeros que sobrevivió al naufragio.**
+
+```{r}
+persv <- numsv/numpas*100
+persv
+```
+
+El porcentaje de pasajeros que sobrevivió al naufragio es `r persv`%. 
+
+**4. ¿Cuántos pasajeros viajaban en primera clase?**
+
+```{r}
+pas1clase <- sum(titanic$clase == "primera")
+pas1clase
+```
+
+El número de pasajeros que viajaban en primera clase es `r pas1clase`.
+
+**5. ¿Cuántos niños (menores de 12 años) aparecen registrados?**
+
+```{r}
+niñosmenos12 <- sum(titanic$edad < 12)
+niñosmenos12
+```
+
+Aparecen registrados `r niñosmenos12` niños menores de 12 años.
+
+**6. Calcula las frecuencias relativas para las distintas clases de pasajeros.**
+
+```{r}
+frel <- table(titanic$clase)/nrow(titanic)
+frel
+```
+
+
+Las frecuencias relativas según clase se muestran en la tabla superior.  
+
+**7. Representa con un gráfico adecuado la distribución de las distintas clases de pasajeros.**
+
+A continuación se muestran dos gráficos que representan la distribución de las distintas clases de pasajeros. En mi opinión, el más adecuado sería el gráfico de barras.
+
+```{r, fig.cap='Distribución de la variable clase.'}
+par(mfrow = c(1,2))
+
+pie(table(titanic$clase))
+barplot(table(titanic$clase))
+```
+
+**8. Representa con un gráfico adecuado la distribución de la edad de los pasajeros registrados.**
+
+Para representar la distribución de una variable continua podemos usar, o bien un histograma, que nos daría una idea aproximada de la forma de la función de densidad, o bien un boxplot o gráfico de cajas. A continuación se muestra un histograma y un boxplot que representan la distribución de la edad de los pasajeros.
+
+```{r}
+par(mfrow = c(1,2))
+hist(titanic$edad, freq = FALSE, main = 'Histograma', xlab = "Edad", ylab = "Densidad" )
+boxplot(titanic$edad, main = "Boxplot de la variable Edad")
+```
+
+**9. ¿Cuál era la edad media de los pasajeros? ¿Y la mediana?**
+
+```{r}
+meanEdad   <- mean(titanic$edad)
+medianEdad <- median(titanic$edad)
+```
+
+La edad media de los pasajeros es de `r meanEdad` años, mientras que la mediana es de `r medianEdad` años.
+
+**10. ¿Cuál era el precio medio de un pasaje en el Titanic?**
+
+```{r}
+meanBillete <- mean(titanic$tarifa)
+```
+
+El precio medio del billete era de `r meanBillete` libras.
+
+**11. La frase ``Mujeres y niños primero'' hace referencia a un protocolo histórico por el que las mujeres y los niños debían ser los primeros en ser salvados en una emergencia. Según los datos, ¿qué porcentaje de mujeres sobrevivió al naufragio? ¿qué porcentaje de hombres sobrevivió al naufragio? ¿qué porcentaje de niños (menores de 12 años) sobrevivió al naufragio?**
+
+```{r}
+supervivientes <- titanic[titanic$sobreviviente == 1, ]
+persvsexo      <- table(supervivientes$sexo)/table(titanic$sexo)*100
+
+niñossv        <- nrow(supervivientes[supervivientes$edad < 12, ]) 
+niños          <- nrow(titanic[titanic$edad < 12, ])
+persvniños     <- niñossv/niños*100 
+```
+
+El porcentaje de mujeres que sobrevivió fue del `r persvsexo[[2]]`%, el de hombres del `r persvsexo[[1]]`%, y el de niños menores a 12 años del `r persvniños`%.
+
+**12. ¿Es la tasa de supervivencia de los hombres que viajaban en primera clase superior a la de los hombres que viajaban en segunda? ¿Es superior a las de los hombres que viajaban en tercera clase?**
+
+```{r}
+hombressv       <- supervivientes[ supervivientes$sexo == "hombre", ]
+hombres         <- titanic[ titanic$sexo == "hombre", ]
+TSVhombresclase <- table(hombressv$clase)/table(hombres$clase)*100
+TSVhombresclase
+```
+
+En la tabla de arriba se muestran las tasas de supervivencia de los hombres según clase en %. Según estos resultados, la tasas de supervivencia de los hombres según clase estarían ordenadas, de mayor a menos como: primera, tercera, segunda.
+
+**13. Representa mediante un diagrama de cajas las edades de los pasajeros agrupadas por clase. ¿Qué observas?**
+
+```{r}
+boxplot(titanic$edad ~ titanic$clase)
+```
+
+Los pasajeros de primera clase son los de mayor edad media y un mayor rango intercuartílico. Los pasajeros de segunda y tercera clase son similares, con una menor media de edad con respecto a los de primera clase y un menor rango intercuartílico. Por otro lado, entre los pasajeros de segunda y tercera clase encontramos diversos valores atípicos. 
+
+**14. Calcula la media y la varianza de las edades en cada clase.**
+
+```{r}
+meanClass  <- with(titanic, tapply(edad, clase, mean))
+varClass   <- with(titanic, tapply(edad, clase, var))
+```
+
+La media de edad en cada clase es de:
+`xtable(meanClass)`
+
+La varianza de la edad en cada clase es de:
+`r varClass`
+
+**15. En el barco se proporcionaba asistencia especial al 5% de los pasajeros de mayor edad. ¿Qué edad debía tener un pasajero para recibir asistencia especial? ¿Qué edad tenía el pasajero más mayor?**
+
+```{r}
+edadasisesp <- quantile(titanic$edad, 0.95) 
+maxedad     <- max(titanic$edad)
+```
+
+Los pasajeros que recibían asistencia especial son los que tenían una edad igual o superior a `r edadasisesp` años. El pasajero de mayor edad tenía `r maxedad` años.
+
+**16. Dibuja un histograma para el precio del pasaje en primera clase.**
+
+```{r}
+hist(titanic$tarifa[titanic$clase == "primera"],
+     main = "Histograma de la variable tarifa para pasajeros de primera clase",
+     xlab = "Tarifa", ylab = "Frecuencia")
+```
+
+
+**17. ¿Cuál es la moda para el puerto de embarque?**
+
+```{r}
+frecEmbarque <- table(titanic$embarque)
+
+# Buscamos el nombre del puerto con mayor frecuencia de embarque
+moda <- dimnames(frecEmbarque)[[1]][which(frecEmbarque == max(frecEmbarque))]
+```
+
+La moda para el puerto de embarque es `r moda`.
+
+
+**18. Los pasajeros que pagaban menos por su billete debían dormir en los camarotes más modestos del barco. En concreto, el 5% de los pasajeros que menos pagaban viajaban en dichos camarotes. ¿Cuál era el precio máximo que se pagaba por uno de estos camarotes?**
+
+```{r}
+preciomax <- quantile(titanic$tarifa, 0.05)
+```
+
+El precio máximo que se pagaba era de `preciomax` libras.
+
+
+**19. Construye una tabla de contingencia para la distribución de la clase del pasajero por sexo.**
+
+```{r}
+table(titanic$clase, titanic$sexo)
+```
+
+**20. Representa en un mismo gráfico la distribución de la clase del pasajero por sexo.**
+
+```{r}
+primera <- titanic[titanic$clase == "primera", ]
+segunda <- titanic[titanic$clase == "segunda", ]
+tercera <- titanic[titanic$clase == "tercera", ]
+
+par(mfrow = c(2,3), oma = c(0, 0, 2, 0))
+
+pie(table(primera$sexo), main = "primera")
+pie(table(segunda$sexo), main = "segunda")
+pie(table(tercera$sexo), main = "tercera")
+
+barplot(table(primera$sexo), main = "primera", col = c("cadetblue2", "pink"))
+barplot(table(segunda$sexo), main = "segunda", col = c("cadetblue2", "pink"))
+barplot(table(tercera$sexo), main = "tercera", col = c("cadetblue2", "pink"))
+
+title("Distribución de la clase del pasajero por sexo", outer = TRUE)
+```
+
+
+
+**21. Calcula los cuartiles para la edad.**
+
+```{r}
+quantile(titanic$edad)
+```
+
+
+**22. ¿Pagaban billete los menores de un año?**
+
+```{r}
+any(titanic$tarifa[titanic$edad < 1] > 0)
+```
+
+Sí, los menores de un año también pagaban billete.
+
+
+
+
+
+
+
+
+
