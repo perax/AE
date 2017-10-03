@@ -2,14 +2,15 @@
 title: "Laboratorio 1"
 author: "Antonio J. Perán"
 date: "29 de septiembre de 2017"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(digits = 2)
-library(xtable)
-options(xtable.comment = FALSE)
+library(pander)
 ```
 
 # Lectura de datos
@@ -17,7 +18,7 @@ options(xtable.comment = FALSE)
 ```{r, results='asis'}
 titanic <- read.csv(file = "http://eio.usc.es/pub/pateiro/AE/data/titanic_es.csv",
                     header = T, sep = ";", dec = ",")
-xtable(head(titanic), caption = "Primeras seis observaciones del conjunto de datos")
+pandoc.table(head(titanic), caption = "Primeras seis observaciones del conjunto de datos")
 ```
 
 # Ejericios
@@ -43,11 +44,14 @@ El número de pasajeros que sobrevivieron al naufragio es `r numsv`.
 **3. Calcula el porcentaje de pasajeros que sobrevivió al naufragio.**
 
 ```{r}
+# numsv y numpas están definidas anteriormente
 persv <- numsv/numpas*100
 persv
 ```
 
 El porcentaje de pasajeros que sobrevivió al naufragio es `r persv`%. 
+
+\newpage
 
 **4. ¿Cuántos pasajeros viajaban en primera clase?**
 
@@ -74,18 +78,19 @@ frel <- table(titanic$clase)/nrow(titanic)
 frel
 ```
 
-
 Las frecuencias relativas según clase se muestran en la tabla superior.  
 
 **7. Representa con un gráfico adecuado la distribución de las distintas clases de pasajeros.**
 
 A continuación se muestran dos gráficos que representan la distribución de las distintas clases de pasajeros. En mi opinión, el más adecuado sería el gráfico de barras.
 
-```{r, fig.cap='Distribución de la variable clase.'}
-par(mfrow = c(1,2))
+```{r, fig.height= 4}
+par(mfrow = c(1,2), oma = c(0, 0, 2, 0))
 
 pie(table(titanic$clase))
 barplot(table(titanic$clase))
+
+title("Distribución de la variable clase.", outer = TRUE)
 ```
 
 **8. Representa con un gráfico adecuado la distribución de la edad de los pasajeros registrados.**
@@ -93,9 +98,12 @@ barplot(table(titanic$clase))
 Para representar la distribución de una variable continua podemos usar, o bien un histograma, que nos daría una idea aproximada de la forma de la función de densidad, o bien un boxplot o gráfico de cajas. A continuación se muestra un histograma y un boxplot que representan la distribución de la edad de los pasajeros.
 
 ```{r}
-par(mfrow = c(1,2))
+par(mfrow = c(1,2), oma = c(0, 0, 2, 0))
+
 hist(titanic$edad, freq = FALSE, main = 'Histograma', xlab = "Edad", ylab = "Densidad" )
-boxplot(titanic$edad, main = "Boxplot de la variable Edad")
+boxplot(titanic$edad, main = "Boxplot de la variable Edad", ylab ="Edad")
+
+title("Distribución de la variable edad.", outer = TRUE)
 ```
 
 **9. ¿Cuál era la edad media de los pasajeros? ¿Y la mediana?**
@@ -128,6 +136,7 @@ persvniños     <- niñossv/niños*100
 
 El porcentaje de mujeres que sobrevivió fue del `r persvsexo[[2]]`%, el de hombres del `r persvsexo[[1]]`%, y el de niños menores a 12 años del `r persvniños`%.
 
+
 **12. ¿Es la tasa de supervivencia de los hombres que viajaban en primera clase superior a la de los hombres que viajaban en segunda? ¿Es superior a las de los hombres que viajaban en tercera clase?**
 
 ```{r}
@@ -142,8 +151,11 @@ En la tabla de arriba se muestran las tasas de supervivencia de los hombres seg�
 **13. Representa mediante un diagrama de cajas las edades de los pasajeros agrupadas por clase. ¿Qué observas?**
 
 ```{r}
-boxplot(titanic$edad ~ titanic$clase)
+boxplot(titanic$edad ~ titanic$clase, main = "Boxplots de la variable edad según clase", 
+        ylab = "Edad")
 ```
+
+\newpage
 
 Los pasajeros de primera clase son los de mayor edad media y un mayor rango intercuartílico. Los pasajeros de segunda y tercera clase son similares, con una menor media de edad con respecto a los de primera clase y un menor rango intercuartílico. Por otro lado, entre los pasajeros de segunda y tercera clase encontramos diversos valores atípicos. 
 
@@ -171,7 +183,7 @@ Los pasajeros que recibían asistencia especial son los que tenían una edad igu
 
 **16. Dibuja un histograma para el precio del pasaje en primera clase.**
 
-```{r}
+```{r, fig.height=4}
 hist(titanic$tarifa[titanic$clase == "primera"],
      main = "Histograma de la variable tarifa para pasajeros de primera clase",
      xlab = "Tarifa", ylab = "Frecuencia")
@@ -207,7 +219,7 @@ table(titanic$clase, titanic$sexo)
 
 **20. Representa en un mismo gráfico la distribución de la clase del pasajero por sexo.**
 
-```{r}
+```{r, fig.height=4}
 primera <- titanic[titanic$clase == "primera", ]
 segunda <- titanic[titanic$clase == "segunda", ]
 tercera <- titanic[titanic$clase == "tercera", ]
