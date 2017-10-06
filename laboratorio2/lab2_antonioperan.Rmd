@@ -1,0 +1,11 @@
+---
+title: 'Laboratorio: Optimización convexa'
+author: 'Antonio J. Perán'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Hola
